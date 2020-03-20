@@ -1,6 +1,6 @@
 {
   "name": "cyber-vika-bot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Простой бот для детей Вики",
   "main": "index.js",
   "scripts": {
@@ -12,8 +12,6 @@
   "dependencies": {
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
-    "node-ddg-api": "^0.1.4",
-    "telegraf": "^3.36.0",
-    "xmlhttprequest": "^1.8.0"
+    "telegraf": "^3.36.0"
   }
 }

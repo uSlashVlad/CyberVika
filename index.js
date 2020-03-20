@@ -1,19 +1,15 @@
 'use strict';
 const Telegraf = require('telegraf');
-/* UNUSED
-const Extra = require('telegraf/extra');
-const Markup = require('telegraf/markup');
- */
 const advancedAPI = require('./src/dogcat-api');
 const randAPI = require('./src/rand-api');
 const axios = require('axios');
 const querystring = require('querystring');
-const DDG = require('node-ddg-api').DDG;
 
 require('dotenv').config();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 
+// Variants of answer on question pattern "Вопрос: <текст>?"
 const ansVariants = [
     'Да, конечно',
     'Определённо',
@@ -35,6 +31,7 @@ const ansVariants = [
     'Да конечно же нет!'
 ];
 
+// For beautiful console logs
 const colors = {
     Reset: "\x1b[0m",
     Bright: "\x1b[1m",
@@ -136,60 +133,48 @@ bot.command('echo', ctx => {
     ctx.reply(message);
 });
 
-// Handling /cat command
+// Handling Advanced API commands
 bot.command('adv_cat', ctx => {
     sendFileFromAdvancedApi(ctx, 0);
 });
-
-// Handling /dog command
 bot.command('adv_dog', ctx => {
     sendFileFromAdvancedApi(ctx, 1);
 });
 
+// Handling Simple rand API commands
 bot.command('dog', ctx => {
     sendAnimalFromSimpleApi(ctx, 'dog');
 });
-
 bot.command('cat', ctx => {
     sendAnimalFromSimpleApi(ctx, 'cat');
 });
-
 bot.command('panda', ctx => {
     sendAnimalFromSimpleApi(ctx, 'panda');
 });
-
 bot.command('red_panda', ctx => {
     sendAnimalFromSimpleApi(ctx, 'red_panda');
 });
-
 bot.command('fox', ctx => {
     sendAnimalFromSimpleApi(ctx, 'fox');
 });
-
 bot.command('bird', ctx => {
     sendAnimalFromSimpleApi(ctx, 'bird');
 });
-
 bot.command('koala', ctx => {
     sendAnimalFromSimpleApi(ctx, 'koala');
 });
-
 bot.command('wink', ctx => {
     sendAnimeFromSimpleApi(ctx, 'wink');
 });
-
 bot.command('pat', ctx => {
     sendAnimeFromSimpleApi(ctx, 'pat');
 });
-
 bot.command('hug', ctx => {
     sendAnimeFromSimpleApi(ctx, 'hug');
 });
-
 bot.command('pikachu', ctx => {
     sendAnimeFromSimpleApi(ctx, 'pikachu');
 });
-
 bot.command('meme', ctx => {
     sendMemeFromSimpleApi(ctx);
 });
@@ -199,10 +184,12 @@ bot.command('meme', ctx => {
 bot.on('text', ctx => {
     let text = ctx.message.text;
 
+    // Handling "Вопрос: <текст>?" messages
     if (text.toLowerCase().startsWith('вопрос:') && text.endsWith('?'))
     {
         ctx.reply(randArrElem(ansVariants));
     }
+    // Doesn't work with simple Telegram bot API
     else if (text.toLowerCase().startsWith('кто: ') && text.endsWith('?'))
     {
         ctx.reply('А это пока что не работает :)');
@@ -272,6 +259,7 @@ bot.action('help_about', (ctx, next) => {
 <b>[ О боте ]</b>
 Бот создан специально для беседы <b>Дети Вики</b>
 Узнать функционал можно через меню команды /help
+<a href="https://github.com/uSlashVlad/CyberVika">Исходный код</a>
 
 <b>[ Создатель ]</b>
 @uslashvlad
@@ -311,6 +299,8 @@ bot.launch().then(() => {
     console.log(colors.fg.Green + 'Bot has been started!' + colors.Reset)
 });
 
+
+// Loading data from Pixabay using HTTP GET request
 async function loadDataFromPixabay(url)
 {
     return new Promise(resolve => {
@@ -329,6 +319,7 @@ async function loadDataFromPixabay(url)
     })
 }
 
+// Sending message with picture from Simple rand API
 async function sendAnimalFromSimpleApi(ctx, type)
 {
     await bot.telegram.sendChatAction(ctx.chat.id, 'upload_photo');
@@ -342,6 +333,7 @@ async function sendAnimalFromSimpleApi(ctx, type)
     console.log(colors.fg.Blue + 'Фото: ' + colors.Reset + img + colors.Dim + '\nФакт: ' + fact + colors.Reset);
 }
 
+// Sending message with animation from Simple rand API
 async function sendAnimeFromSimpleApi(ctx, type)
 {
     await bot.telegram.sendChatAction(ctx.chat.id, 'upload_video');
@@ -353,6 +345,7 @@ async function sendAnimeFromSimpleApi(ctx, type)
     console.log(colors.fg.Blue + 'Anime gif: ' + colors.Reset + gif)
 }
 
+// Sending message with meme from Simple rand API
 async function sendMemeFromSimpleApi(ctx)
 {
     await bot.telegram.sendChatAction(ctx.chat.id, 'upload_photo');
@@ -367,14 +360,17 @@ async function sendMemeFromSimpleApi(ctx)
     console.log(colors.fg.Blue + 'Meme: ' + colors.Reset + data.image + '\n' + colors.Dim + caption + colors.Reset);
 }
 
+// Sending file from Advanced Dog/Cat API
 async function sendFileFromAdvancedApi(ctx, type)
 {
     let apiParams = advancedAPI.getApiParams(type);
 
+    // Processing arguments
     let text = ctx.message.text;
     let args = text.split(' ');
     args.shift();
 
+    // Processing formats
     let photoType = 'jpg,png';
     if (args.length === 0 || args[0].toLowerCase() === 'photo')
     {
@@ -392,6 +388,7 @@ async function sendFileFromAdvancedApi(ctx, type)
         return;
     }
 
+    // Making HTTP GET request in ./src/dogcat-api.js
     let result = await advancedAPI.loadFileFromAdvancedApi(apiParams.url, apiParams.key, {
         'mime_types': photoType,
         'size': 'small',
@@ -399,9 +396,11 @@ async function sendFileFromAdvancedApi(ctx, type)
         'limit': 1
     }); //console.log(result);
 
+    // Processing data
     let url = result.data[0].url;
     if (url.endsWith('.jpg') || url.endsWith('.png'))
     {
+        // If result is image
         await ctx.replyWithPhoto(url,{
             caption: result.data[0].id,
             reply_markup: {
@@ -416,6 +415,7 @@ async function sendFileFromAdvancedApi(ctx, type)
     }
     else if (url.endsWith('.gif'))
     {
+        // If result is animation
         await bot.telegram.sendAnimation(ctx.chat.id, result.data[0].url,{
             caption: result.data[0].id,
             reply_markup: {
@@ -432,6 +432,7 @@ async function sendFileFromAdvancedApi(ctx, type)
     console.log('Фото ' + apiParams.typeRU + 'а: ' + result.data[0].url);
 }
 
+// Handling votes from message with dog/cat image from Advanced API
 async function handleVoteForFileFromAdvancedApi(ctx, type, value)
 {
     let apiParams = advancedAPI.getApiParams(type);
@@ -447,6 +448,7 @@ async function handleVoteForFileFromAdvancedApi(ctx, type, value)
         await ctx.answerCbQuery('Произошла ошибка ' + result.status + ' на стороне API');
 }
 
+// Simple function of getting random element of array
 function randArrElem(arr)
 {
     return arr[Math.floor(Math.random() * arr.length)];
