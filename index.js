@@ -76,8 +76,7 @@ bot.use((ctx, next) => {
     let str = colors.Dim + '[' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '] ' + colors.Reset;
     str += colors.fg.Cyan + ctx.from.username + colors.Reset + ' > ';
 
-    if (ctx.chat)
-    {
+    if (ctx.chat) {
         if (ctx.chat.title !== undefined)
             str += colors.fg.Cyan + ctx.chat.title + colors.Reset + ': ';
         else
@@ -86,8 +85,7 @@ bot.use((ctx, next) => {
 
     if (ctx.updateSubTypes[0] === 'text')
         str += ctx.message.text;
-    else if (ctx.updateSubTypes.length === 0)
-    {
+    else if (ctx.updateSubTypes.length === 0) {
         if (ctx.updateType === 'edited_message')
             str += colors.fg.Yellow + '[E] ' + colors.Reset + ctx.update.edited_message.text;
         else if (ctx.updateType === 'callback_query')
@@ -111,8 +109,8 @@ bot.help(ctx => {
     ctx.reply('А?', {
         reply_markup: {
             inline_keyboard: [
-                [{text: 'Что можешь?', callback_data: 'help_commands'}],
-                [{text: 'О боте', callback_data: 'help_about'}]
+                [{ text: 'Что можешь?', callback_data: 'help_commands' }],
+                [{ text: 'О боте', callback_data: 'help_about' }]
             ]
         }
     })
@@ -185,13 +183,11 @@ bot.on('text', ctx => {
     let text = ctx.message.text;
 
     // Handling "Вопрос: <текст>?" messages
-    if (text.toLowerCase().startsWith('вопрос:') && text.endsWith('?'))
-    {
+    if (text.toLowerCase().startsWith('вопрос:') && text.endsWith('?')) {
         ctx.reply(randArrElem(ansVariants));
     }
     // Doesn't work with simple Telegram bot API
-    else if (text.toLowerCase().startsWith('кто: ') && text.endsWith('?'))
-    {
+    else if (text.toLowerCase().startsWith('кто: ') && text.endsWith('?')) {
         ctx.reply('А это пока что не работает :)');
     }
 });
@@ -249,7 +245,7 @@ bot.action('help_commands', (ctx, next) => {
 -другое-
 Вопрос: <code>[текст]</code>? - <i>бот как-нибудь отвечает в варианте да/нет</i>`;
 
-    ctx.editMessageText(message, {parse_mode:"html"}).then(() => {
+    ctx.editMessageText(message, { parse_mode: "html" }).then(() => {
         ctx.answerCbQuery().then(next());
     })
 });
@@ -274,7 +270,7 @@ bot.action('help_about', (ctx, next) => {
     let date = new Date();
     message += '\n\n<b>Серверное время: ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '</b>';
 
-    ctx.editMessageText(message, {parse_mode:"html"}).then(() => {
+    ctx.editMessageText(message, { parse_mode: "html" }).then(() => {
         ctx.answerCbQuery().then(next());
     });
 });
@@ -301,8 +297,7 @@ bot.launch().then(() => {
 
 
 // Loading data from Pixabay using HTTP GET request
-async function loadDataFromPixabay(url)
-{
+async function loadDataFromPixabay(url) {
     return new Promise(resolve => {
         axios.get(url).then(res => {
             let data = res.data.hits;
@@ -320,22 +315,27 @@ async function loadDataFromPixabay(url)
 }
 
 // Sending message with picture from Simple rand API
-async function sendAnimalFromSimpleApi(ctx, type)
-{
+async function sendAnimalFromSimpleApi(ctx, type) {
     await bot.telegram.sendChatAction(ctx.chat.id, 'upload_photo');
 
     let imgRes = await randAPI.loadDataFromApi('image', type);
-    let img = imgRes.data.link;
+    let url = imgRes.data.link;
     let factRes = await randAPI.loadDataFromApi('fact', type);
-    let fact = factRes.data.fact;
+    let fact = 'Случайный факт: ' + factRes.data.fact;
 
-    await ctx.replyWithPhoto(img, {caption:'Случайный факт: ' + fact});
-    console.log(colors.fg.Blue + 'Фото: ' + colors.Reset + img + colors.Dim + '\nФакт: ' + fact + colors.Reset);
+
+    if (url.endsWith('.jpg') || url.endsWith('.png')) {
+        await ctx.replyWithPhoto(url, { caption: fact });
+    }
+    else if (url.endsWith('.gif')) {
+        await ctx.sendAnimation(ctx.chat.id, url, { caption: fact })
+    }
+
+    console.log(colors.fg.Blue + 'Фото: ' + colors.Reset + url + colors.Dim + '\n' + fact + colors.Reset);
 }
 
 // Sending message with animation from Simple rand API
-async function sendAnimeFromSimpleApi(ctx, type)
-{
+async function sendAnimeFromSimpleApi(ctx, type) {
     await bot.telegram.sendChatAction(ctx.chat.id, 'upload_video');
 
     let gifRes = await randAPI.loadDataFromApi('anime', type);
@@ -346,8 +346,7 @@ async function sendAnimeFromSimpleApi(ctx, type)
 }
 
 // Sending message with meme from Simple rand API
-async function sendMemeFromSimpleApi(ctx)
-{
+async function sendMemeFromSimpleApi(ctx) {
     await bot.telegram.sendChatAction(ctx.chat.id, 'upload_photo');
 
     let imgRes = await randAPI.loadDataFromApi('meme');
@@ -361,8 +360,7 @@ async function sendMemeFromSimpleApi(ctx)
 }
 
 // Sending file from Advanced Dog/Cat API
-async function sendFileFromAdvancedApi(ctx, type)
-{
+async function sendFileFromAdvancedApi(ctx, type) {
     let apiParams = advancedAPI.getApiParams(type);
 
     // Processing arguments
@@ -372,18 +370,15 @@ async function sendFileFromAdvancedApi(ctx, type)
 
     // Processing formats
     let photoType = 'jpg,png';
-    if (args.length === 0 || args[0].toLowerCase() === 'photo')
-    {
+    if (args.length === 0 || args[0].toLowerCase() === 'photo') {
         photoType = 'jpg,png';
         await bot.telegram.sendChatAction(ctx.chat.id, 'upload_photo');
     }
-    else if (args[0].toLowerCase() === 'gif')
-    {
+    else if (args[0].toLowerCase() === 'gif') {
         photoType = 'gif';
         await bot.telegram.sendChatAction(ctx.chat.id, 'upload_video');
     }
-    else
-    {
+    else {
         await ctx.reply('Неправильный аргумент');
         return;
     }
@@ -398,31 +393,29 @@ async function sendFileFromAdvancedApi(ctx, type)
 
     // Processing data
     let url = result.data[0].url;
-    if (url.endsWith('.jpg') || url.endsWith('.png'))
-    {
+    if (url.endsWith('.jpg') || url.endsWith('.png')) {
         // If result is image
-        await ctx.replyWithPhoto(url,{
+        await ctx.replyWithPhoto(url, {
             caption: result.data[0].id,
             reply_markup: {
                 inline_keyboard: [
                     [
-                        {text: '❤', callback_data: apiParams.typeEN + '_upvote'},
-                        {text: '🤢', callback_data: apiParams.typeEN + '_downvote'}
+                        { text: '❤', callback_data: apiParams.typeEN + '_upvote' },
+                        { text: '🤢', callback_data: apiParams.typeEN + '_downvote' }
                     ]
                 ]
             }
         });
     }
-    else if (url.endsWith('.gif'))
-    {
+    else if (url.endsWith('.gif')) {
         // If result is animation
-        await bot.telegram.sendAnimation(ctx.chat.id, result.data[0].url,{
+        await bot.telegram.sendAnimation(ctx.chat.id, result.data[0].url, {
             caption: result.data[0].id,
             reply_markup: {
                 inline_keyboard: [
                     [
-                        {text: '❤', callback_data: apiParams.typeEN + '_upvote'},
-                        {text: '🤢', callback_data: apiParams.typeEN + '_downvote'}
+                        { text: '❤', callback_data: apiParams.typeEN + '_upvote' },
+                        { text: '🤢', callback_data: apiParams.typeEN + '_downvote' }
                     ]
                 ]
             }
@@ -433,8 +426,7 @@ async function sendFileFromAdvancedApi(ctx, type)
 }
 
 // Handling votes from message with dog/cat image from Advanced API
-async function handleVoteForFileFromAdvancedApi(ctx, type, value)
-{
+async function handleVoteForFileFromAdvancedApi(ctx, type, value) {
     let apiParams = advancedAPI.getApiParams(type);
 
     let result = await advancedAPI.voteForFileFromAdvancedApi(apiParams.url, apiParams.key, {
@@ -449,7 +441,6 @@ async function handleVoteForFileFromAdvancedApi(ctx, type, value)
 }
 
 // Simple function of getting random element of array
-function randArrElem(arr)
-{
+function randArrElem(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }

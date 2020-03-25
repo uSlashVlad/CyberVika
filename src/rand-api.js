@@ -30,15 +30,13 @@ const apis = {
 
 (function () {
 
-    module.exports.loadDataFromApi = async function (type1, type2)
-    {
+    module.exports.loadDataFromApi = async function (type1, type2) {
         return new Promise(resolve => {
             resolve(axios.get(generateURL(type1, type2)));
         });
     };
 
-    function generateURL(mainType, addType)
-    {
+    function generateURL(mainType, addType) {
         switch (mainType) {
             case 'fact':
                 switch (addType) {

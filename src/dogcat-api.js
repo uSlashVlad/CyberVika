@@ -4,9 +4,8 @@ const axios = require('axios');
 const CAT_API_URL = 'https://api.thecatapi.com/';
 const DOG_API_URL = 'https://api.thedogapi.com/';
 
-(function() {
-    module.exports.getApiParams = function (type)
-    {
+(function () {
+    module.exports.getApiParams = function (type) {
         let API_URL;
         let API_KEY = process.env.DOGCAT_API_KEY;
         let animalTypeEN;
@@ -39,32 +38,32 @@ const DOG_API_URL = 'https://api.thedogapi.com/';
         };
     };
 
-    module.exports.loadFileFromAdvancedApi = async function (api_url, api_key, body)
-    {
+    module.exports.loadFileFromAdvancedApi = async function (api_url, api_key, body) {
         return new Promise(resolve => {
             let _url = api_url + 'v1/images/search?' + querystring.stringify(body);
 
             resolve(axios({
                 method: 'get',
                 url: _url,
+                size: 'small',
                 headers: {
-                    'Content-Type' : 'application/json',
+                    'Content-Type': 'application/json',
                     'x-api-key': api_key
                 }
             }));
         });
     };
 
-    module.exports.voteForFileFromAdvancedApi = async function (api_url, api_key, body)
-    {
+    module.exports.voteForFileFromAdvancedApi = async function (api_url, api_key, body) {
         return new Promise(resolve => {
             let _url = api_url + 'v1/votes';
 
             resolve(axios({
                 method: 'post',
                 url: _url,
+                size: 'small',
                 headers: {
-                    'Content-Type' : 'application/json',
+                    'Content-Type': 'application/json',
                     'x-api-key': api_key
                 },
                 data: body
