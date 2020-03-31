@@ -14,6 +14,7 @@ This Node JS project requires this modules:
 1) [Telegraf](https://github.com/telegraf/telegraf) `npm i telegraf`
 2) [Axios](https://github.com/axios/axios) `npm i axios`
 3) [DotEnv](https://github.com/motdotla/dotenv) `npm i dotenv`
+4) [colors](https://github.com/Marak/colors.js) `npm i colors`
 
 ## How to start
 If needed all modules was installed, you could start this bot, but:
@@ -26,3 +27,4 @@ BOT_TOKEN='<Telegram bot token>'
 DOGCAT_API_KEY='<Dog/Cat API token>'
 PIX_API_KEY='<Pixabay API token>'
 ```
+- Use `npm run start` or `node index.js` to start bot

@@ -1,6 +1,6 @@
 {
   "name": "cyber-vika-bot",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Простой бот для детей Вики",
   "main": "index.js",
   "scripts": {
@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.2",
+    "colors": "^1.4.0",
     "dotenv": "^8.2.0",
     "telegraf": "^3.36.0"
   }

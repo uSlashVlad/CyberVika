@@ -2,8 +2,10 @@
 const Telegraf = require('telegraf');
 const advancedAPI = require('./src/dogcat-api');
 const randAPI = require('./src/rand-api');
+const random = require('./src/random');
 const axios = require('axios');
 const querystring = require('querystring');
+const colors = require('colors');
 
 require('dotenv').config();
 const bot = new Telegraf(process.env.BOT_TOKEN);
@@ -31,41 +33,6 @@ const ansVariants = [
     'Да конечно же нет!'
 ];
 
-// For beautiful console logs
-const colors = {
-    Reset: "\x1b[0m",
-    Bright: "\x1b[1m",
-    Dim: "\x1b[2m",
-    Underscore: "\x1b[4m",
-    Blink: "\x1b[5m",
-    Reverse: "\x1b[7m",
-    Hidden: "\x1b[8m",
-
-    fg: {
-        Black: "\x1b[30m",
-        Red: "\x1b[31m",
-        Green: "\x1b[32m",
-        Yellow: "\x1b[33m",
-        Blue: "\x1b[34m",
-        Magenta: "\x1b[35m",
-        Cyan: "\x1b[36m",
-        White: "\x1b[37m",
-        Crimson: "\x1b[38m"
-    },
-
-    bg: {
-        Black: "\x1b[40m",
-        Red: "\x1b[41m",
-        Green: "\x1b[42m",
-        Yellow: "\x1b[43m",
-        Blue: "\x1b[44m",
-        Magenta: "\x1b[45m",
-        Cyan: "\x1b[46m",
-        White: "\x1b[47m",
-        Crimson: "\x1b[48m"
-    }
-};
-
 const pixApiUrl = 'https://pixabay.com/api/';
 
 
@@ -73,26 +40,26 @@ bot.use((ctx, next) => {
     // Logging
     //console.log(ctx);
     let date = new Date();
-    let str = colors.Dim + '[' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '] ' + colors.Reset;
-    str += colors.fg.Cyan + ctx.from.username + colors.Reset + ' > ';
+    let str = ('[' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '] ').dim;
+    str += ctx.from.username.cyan + ' > ';
 
     if (ctx.chat) {
         if (ctx.chat.title !== undefined)
-            str += colors.fg.Cyan + ctx.chat.title + colors.Reset + ': ';
+            str += ctx.chat.title.cyan + ': ';
         else
-            str += colors.fg.Cyan + ctx.me + colors.Reset + ': ';
+            str += ctx.me.cyan + ': ';
     }
 
     if (ctx.updateSubTypes[0] === 'text')
         str += ctx.message.text;
     else if (ctx.updateSubTypes.length === 0) {
         if (ctx.updateType === 'edited_message')
-            str += colors.fg.Yellow + '[E] ' + colors.Reset + ctx.update.edited_message.text;
+            str += '[E] '.yellow + ctx.update.edited_message.text;
         else if (ctx.updateType === 'callback_query')
-            str += colors.fg.Magenta + '[CQ] ' + colors.Reset + ctx.update.callback_query.data;
+            str += '[CQ] '.magenta + ctx.update.callback_query.data;
     }
     else
-        str += colors.fg.Red + ctx.updateSubTypes[0] + colors.Reset;
+        str += ctx.updateSubTypes[0].red;
 
     console.log(str);
     next();
@@ -113,7 +80,22 @@ bot.help(ctx => {
                 [{ text: 'О боте', callback_data: 'help_about' }]
             ]
         }
-    })
+    });
+});
+
+bot.command('gay', ctx => {
+    let message = `<b>[ Создатель ]</b>
+@uslashvlad
+<a href="https://github.com/uSlashVlad">GitHub</a> <a href="https://vk.com/uslashvlad">ВК</a>
+<i>Не ЧСВ :)</i>`;
+    ctx.reply(message, {
+        parse_mode: "html",
+        reply_markup: {
+            inline_keyboard: [
+                [{ text: 'Поддержать голодного программиста', url: 'https://qiwi.com/n/VLADN' }]
+            ]
+        }
+    });
 });
 
 // Handling /echo command
@@ -129,6 +111,20 @@ bot.command('echo', ctx => {
         message = 'Нужен текст для вывода';
 
     ctx.reply(message);
+});
+
+// Handling simple /luck command
+bot.command('luck', ctx => {
+    let res = random.chance(0.5);
+    let message = 'Шанс на удар по жопе: <b>0.5</b>\n';
+
+    if (res) {
+        message += 'Тебе не повезло, получай по жопе 👋👋👋';
+    } else {
+        message += 'Тебе повезло, твоя жопа в сохранности';
+    }
+    
+    ctx.reply(message, { parse_mode: "html" });
 });
 
 // Handling Advanced API commands
@@ -184,7 +180,7 @@ bot.on('text', ctx => {
 
     // Handling "Вопрос: <текст>?" messages
     if (text.toLowerCase().startsWith('вопрос:') && text.endsWith('?')) {
-        ctx.reply(randArrElem(ansVariants));
+        ctx.reply(random.arrElem(ansVariants));
     }
     // Doesn't work with simple Telegram bot API
     else if (text.toLowerCase().startsWith('кто: ') && text.endsWith('?')) {
@@ -218,7 +214,9 @@ bot.action('help_commands', (ctx, next) => {
 -основные-
 /start - <i>"Hello World!"</i>
 /help - <i>помощь</i>
+/gay - <i>меню моего чсв</i>
 /echo <code>[текст]</code> - <i>бот выведет текст</i>
+/luck - <i>рандомно даст/не даст по жопе</i>
 
 -рандомные апи-
 продвинутое апи:
@@ -250,6 +248,7 @@ bot.action('help_commands', (ctx, next) => {
     })
 });
 bot.action('help_about', (ctx, next) => {
+    let date = new Date();
     let message = `Всё сделано ради <a href="https://new.umschool.net/core/profile/">Умскула</a>
 
 <b>[ О боте ]</b>
@@ -257,18 +256,12 @@ bot.action('help_about', (ctx, next) => {
 Узнать функционал можно через меню команды /help
 <a href="https://github.com/uSlashVlad/CyberVika">Исходный код</a>
 
-<b>[ Создатель ]</b>
-@uslashvlad
-<a href="https://github.com/uSlashVlad">GitHub</a> <a href="https://vk.com/uslashvlad">ВК</a>
-<i>Не ЧСВ :)</i>
-
 <b>[ Сторонние API ]</b>
 <a href="https://some-random-api.ml/">Простое рандомное АПИ</a>
 <a href="https://api.thecatapi.com/">АПИ с котиками</a>
 <a href="https://api.thedogapi.com/">АПИ с пёсиками</a>
-<a href="https://pixabay.com/service/about/api/">Pixabay API</a>`;
-    let date = new Date();
-    message += '\n\n<b>Серверное время: ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '</b>';
+<a href="https://pixabay.com/service/about/api/">Pixabay API</a>
+<b>Серверное время: ${date.getHours()} : ${date.getMinutes()} : ${date.getSeconds()}</b>`;
 
     ctx.editMessageText(message, { parse_mode: "html" }).then(() => {
         ctx.answerCbQuery().then(next());
@@ -292,7 +285,7 @@ bot.action('dog_downvote', ctx => {
 
 bot.launch().then(() => {
     advancedAPI.bot = bot;
-    console.log(colors.fg.Green + 'Bot has been started!' + colors.Reset)
+    console.log('Bot has been started!'.green)
 });
 
 
@@ -331,7 +324,7 @@ async function sendAnimalFromSimpleApi(ctx, type) {
         await ctx.sendAnimation(ctx.chat.id, url, { caption: fact })
     }
 
-    console.log(colors.fg.Blue + 'Фото: ' + colors.Reset + url + colors.Dim + '\n' + fact + colors.Reset);
+    console.log('Фото: '.blue + url + '\n' + fact.dim);
 }
 
 // Sending message with animation from Simple rand API
@@ -342,7 +335,7 @@ async function sendAnimeFromSimpleApi(ctx, type) {
     let gif = gifRes.data.link;
 
     await bot.telegram.sendAnimation(ctx.chat.id, gif);
-    console.log(colors.fg.Blue + 'Anime gif: ' + colors.Reset + gif)
+    console.log('Anime gif: '.dim + gif)
 }
 
 // Sending message with meme from Simple rand API
@@ -356,7 +349,7 @@ async function sendMemeFromSimpleApi(ctx) {
     await ctx.replyWithPhoto(data.image, {
         caption: caption
     });
-    console.log(colors.fg.Blue + 'Meme: ' + colors.Reset + data.image + '\n' + colors.Dim + caption + colors.Reset);
+    console.log('Meme: '.blue + data.image + '\n' + caption.dim);
 }
 
 // Sending file from Advanced Dog/Cat API
@@ -440,7 +433,3 @@ async function handleVoteForFileFromAdvancedApi(ctx, type, value) {
         await ctx.answerCbQuery('Произошла ошибка ' + result.status + ' на стороне API');
 }
 
-// Simple function of getting random element of array
-function randArrElem(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-}
