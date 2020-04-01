@@ -38,7 +38,7 @@ const pixApiUrl = 'https://pixabay.com/api/';
 
 bot.use((ctx, next) => {
     // Logging
-    //console.log(ctx);
+    // console.log(ctx);
     let date = new Date();
     let str = ('[' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '] ').dim;
     str += ctx.from.username.cyan + ' > ';
@@ -123,8 +123,17 @@ bot.command('luck', ctx => {
     } else {
         message += 'Тебе повезло, твоя жопа в сохранности';
     }
-    
+
     ctx.reply(message, { parse_mode: "html" });
+});
+
+// Handling /f command
+bot.command('f', ctx => {
+    ctx.getStickerSet('FforRespect').then(response => {
+        let stickers = response.stickers;
+        let randSticker = random.arrElem(stickers).file_id;
+        ctx.replyWithSticker(randSticker);
+    })
 });
 
 // Handling Advanced API commands
@@ -432,4 +441,3 @@ async function handleVoteForFileFromAdvancedApi(ctx, type, value) {
     else
         await ctx.answerCbQuery('Произошла ошибка ' + result.status + ' на стороне API');
 }
-
