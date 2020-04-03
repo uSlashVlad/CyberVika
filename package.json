@@ -1,6 +1,6 @@
 {
   "name": "cyber-vika-bot",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Простой бот для детей Вики",
   "main": "index.js",
   "scripts": {

@@ -41,7 +41,8 @@ bot.use((ctx, next) => {
     // console.log(ctx);
     let date = new Date();
     let str = ('[' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '] ').dim;
-    str += ctx.from.username.cyan + ' > ';
+    if (ctx.from.username)
+        str += ctx.from.username.cyan + ' > ';
 
     if (ctx.chat) {
         if (ctx.chat.title !== undefined)
@@ -85,7 +86,7 @@ bot.help(ctx => {
 
 bot.command('gay', ctx => {
     let message = `<b>[ Создатель ]</b>
-@uslashvlad
+<a href="https://t.me/uslashvlad">uslashvlad</a>
 <a href="https://github.com/uSlashVlad">GitHub</a> <a href="https://vk.com/uslashvlad">ВК</a>
 <i>Не ЧСВ :)</i>`;
     ctx.reply(message, {

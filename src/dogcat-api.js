@@ -44,7 +44,6 @@ module.exports.loadFileFromAdvancedApi = async function (api_url, api_key, body)
         resolve(axios({
             method: 'get',
             url: _url,
-            size: 'small',
             headers: {
                 'Content-Type': 'application/json',
                 'x-api-key': api_key
@@ -60,7 +59,6 @@ module.exports.voteForFileFromAdvancedApi = async function (api_url, api_key, bo
         resolve(axios({
             method: 'post',
             url: _url,
-            size: 'small',
             headers: {
                 'Content-Type': 'application/json',
                 'x-api-key': api_key
