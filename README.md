@@ -15,6 +15,8 @@ This Node JS project requires this modules:
 2) [Axios](https://github.com/axios/axios) `npm i axios`
 3) [DotEnv](https://github.com/motdotla/dotenv) `npm i dotenv`
 4) [colors](https://github.com/Marak/colors.js) `npm i colors`
+Or you can install all of them in 1 command:
+`npm i`
 
 ## How to start
 If needed all modules was installed, you could start this bot, but:
