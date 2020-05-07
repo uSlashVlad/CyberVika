@@ -1,11 +1,10 @@
-'use strict';
 const Telegraf = require('telegraf');
 const advancedAPI = require('./src/dogcat-api');
 const randAPI = require('./src/rand-api');
 const random = require('./src/random');
 const axios = require('axios');
 const querystring = require('querystring');
-const colors = require('colors');
+require('colors');
 
 require('dotenv').config();
 const bot = new Telegraf(process.env.BOT_TOKEN);
@@ -39,7 +38,7 @@ const pixApiUrl = 'https://pixabay.com/api/';
 bot.use((ctx, next) => {
     // Logging
     // console.log(ctx);
-    let date = new Date();
+    const date = new Date();
     let str = ('[' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '] ').dim;
     if (ctx.from.username)
         str += ctx.from.username.cyan + ' > ';
@@ -101,8 +100,8 @@ bot.command('gay', ctx => {
 
 // Handling /echo command
 bot.command('echo', ctx => {
-    let input = ctx.message.text;
-    let args = input.split(' ');
+    const input = ctx.message.text;
+    const args = input.split(' ');
     args.shift();
 
     let message;
@@ -116,7 +115,7 @@ bot.command('echo', ctx => {
 
 // Handling simple /luck command
 bot.command('luck', ctx => {
-    let res = random.chance(0.5);
+    const res = random.chance(0.5);
     let message = 'Шанс на удар по жопе: <b>0.5</b>\n';
 
     if (res) {
@@ -131,8 +130,8 @@ bot.command('luck', ctx => {
 // Handling /f command
 bot.command('f', ctx => {
     ctx.getStickerSet('FforRespect').then(response => {
-        let stickers = response.stickers;
-        let randSticker = random.arrElem(stickers).file_id;
+        const stickers = response.stickers;
+        const randSticker = random.arrElem(stickers).file_id;
         ctx.replyWithSticker(randSticker);
     })
 });
@@ -186,24 +185,20 @@ bot.command('meme', ctx => {
 
 // Handling text messages
 bot.on('text', ctx => {
-    let text = ctx.message.text;
+    const text = ctx.message.text;
 
     // Handling "Вопрос: <текст>?" messages
     if (text.toLowerCase().startsWith('вопрос:') && text.endsWith('?')) {
         ctx.reply(random.arrElem(ansVariants));
     }
-    // Doesn't work with simple Telegram bot API
-    else if (text.toLowerCase().startsWith('кто: ') && text.endsWith('?')) {
-        ctx.reply('А это пока что не работает :)');
-    }
 });
 
 // Pixabay search
 bot.inlineQuery(/pix\s.+/, async ctx => {
-    let input = ctx.inlineQuery.query.split(' ');
+    const input = ctx.inlineQuery.query.split(' ');
     input.shift();
 
-    let query = input.join(' ');
+    const query = input.join(' ');
     if (query === '' || query === undefined) return;
 
     let urlBody = {
@@ -258,8 +253,8 @@ bot.action('help_commands', (ctx, next) => {
     })
 });
 bot.action('help_about', (ctx, next) => {
-    let date = new Date();
-    let message = `Всё сделано ради <a href="https://new.umschool.net/core/profile/">Умскула</a>
+    const date = new Date();
+    const message = `Всё сделано ради <a href="https://new.umschool.net/core/profile/">Умскула</a>
 
 <b>[ О боте ]</b>
 Бот создан специально для беседы <b>Дети Вики</b>
@@ -321,10 +316,10 @@ async function loadDataFromPixabay(url) {
 async function sendAnimalFromSimpleApi(ctx, type) {
     await bot.telegram.sendChatAction(ctx.chat.id, 'upload_photo');
 
-    let imgRes = await randAPI.loadDataFromApi('image', type);
-    let url = imgRes.data.link;
-    let factRes = await randAPI.loadDataFromApi('fact', type);
-    let fact = 'Случайный факт: ' + factRes.data.fact;
+    const imgRes = await randAPI.loadDataFromApi('image', type);
+    const url = imgRes.data.link;
+    const factRes = await randAPI.loadDataFromApi('fact', type);
+    const fact = `Случайный факт: ${factRes.data.fact}`;
 
 
     if (url.endsWith('.jpg') || url.endsWith('.png')) {
@@ -334,41 +329,41 @@ async function sendAnimalFromSimpleApi(ctx, type) {
         await ctx.sendAnimation(ctx.chat.id, url, { caption: fact })
     }
 
-    console.log('Фото: '.blue + url + '\n' + fact.dim);
+    console.log(`${'Фото: '.blue} ${url}\n${fact.dim}`);
 }
 
 // Sending message with animation from Simple rand API
 async function sendAnimeFromSimpleApi(ctx, type) {
     await bot.telegram.sendChatAction(ctx.chat.id, 'upload_video');
 
-    let gifRes = await randAPI.loadDataFromApi('anime', type);
-    let gif = gifRes.data.link;
+    const gifRes = await randAPI.loadDataFromApi('anime', type);
+    const gif = gifRes.data.link;
 
     await bot.telegram.sendAnimation(ctx.chat.id, gif);
-    console.log('Anime gif: '.dim + gif)
+    console.log(`${'Anime gif: '.dim}${gif}`)
 }
 
 // Sending message with meme from Simple rand API
 async function sendMemeFromSimpleApi(ctx) {
     await bot.telegram.sendChatAction(ctx.chat.id, 'upload_photo');
 
-    let imgRes = await randAPI.loadDataFromApi('meme');
-    let data = imgRes.data;
-    let caption = data.caption + ' [' + data.category + ']';
+    const imgRes = await randAPI.loadDataFromApi('meme');
+    const data = imgRes.data;
+    const caption = data.caption + ' [' + data.category + ']';
 
     await ctx.replyWithPhoto(data.image, {
         caption: caption
     });
-    console.log('Meme: '.blue + data.image + '\n' + caption.dim);
+    console.log(`${'Meme: '.blue}${data.image}\n${caption.dim}`);
 }
 
 // Sending file from Advanced Dog/Cat API
 async function sendFileFromAdvancedApi(ctx, type) {
-    let apiParams = advancedAPI.getApiParams(type);
+    const apiParams = advancedAPI.getApiParams(type);
 
     // Processing arguments
-    let text = ctx.message.text;
-    let args = text.split(' ');
+    const text = ctx.message.text;
+    const args = text.split(' ');
     args.shift();
 
     // Processing formats
@@ -387,7 +382,7 @@ async function sendFileFromAdvancedApi(ctx, type) {
     }
 
     // Making HTTP GET request in ./src/dogcat-api.js
-    let result = await advancedAPI.loadFileFromAdvancedApi(apiParams.url, apiParams.key, {
+    const result = await advancedAPI.loadFileFromAdvancedApi(apiParams.url, apiParams.key, {
         'mime_types': photoType,
         'size': 'small',
         'sub_id': ctx.from.username,
@@ -395,7 +390,7 @@ async function sendFileFromAdvancedApi(ctx, type) {
     }); //console.log(result);
 
     // Processing data
-    let url = result.data[0].url;
+    const url = result.data[0].url;
     if (url.endsWith('.jpg') || url.endsWith('.png')) {
         // If result is image
         await ctx.replyWithPhoto(url, {
@@ -403,8 +398,8 @@ async function sendFileFromAdvancedApi(ctx, type) {
             reply_markup: {
                 inline_keyboard: [
                     [
-                        { text: '❤', callback_data: apiParams.typeEN + '_upvote' },
-                        { text: '🤢', callback_data: apiParams.typeEN + '_downvote' }
+                        { text: '❤', callback_data: `${apiParams.typeEN}_upvote` },
+                        { text: '🤢', callback_data: `${apiParams.typeEN}_downvote` }
                     ]
                 ]
             }
@@ -417,28 +412,28 @@ async function sendFileFromAdvancedApi(ctx, type) {
             reply_markup: {
                 inline_keyboard: [
                     [
-                        { text: '❤', callback_data: apiParams.typeEN + '_upvote' },
-                        { text: '🤢', callback_data: apiParams.typeEN + '_downvote' }
+                        { text: '❤', callback_data: `${apiParams.typeEN}_upvote` },
+                        { text: '🤢', callback_data: `${apiParams.typeEN}_downvote` }
                     ]
                 ]
             }
         });
     }
 
-    console.log('Фото ' + apiParams.typeRU + 'а: ' + result.data[0].url);
+    console.log(`Фото ${apiParams.typeRUа}а: ${result.data[0].url}`);
 }
 
 // Handling votes from message with dog/cat image from Advanced API
 async function handleVoteForFileFromAdvancedApi(ctx, type, value) {
-    let apiParams = advancedAPI.getApiParams(type);
+    const apiParams = advancedAPI.getApiParams(type);
 
-    let result = await advancedAPI.voteForFileFromAdvancedApi(apiParams.url, apiParams.key, {
+    const result = await advancedAPI.voteForFileFromAdvancedApi(apiParams.url, apiParams.key, {
         image_id: ctx.update.callback_query.message.caption,
         sub_id: ctx.update.callback_query.from.username,
         value: value
     });
     if (result.status === 200)
-        await ctx.answerCbQuery('Вы проголосовали ' + ((value === 1) ? 'за' : 'против') + ' этого ' + apiParams.typeRU + 'а!');
+        await ctx.answerCbQuery(`Вы проголосовали ${((value === 1) ? 'за' : 'против')} этого ${apiParams.typeRU}а!`);
     else
-        await ctx.answerCbQuery('Произошла ошибка ' + result.status + ' на стороне API');
+        await ctx.answerCbQuery(`Произошла ошибка ${result.status} на стороне API`);
 }
