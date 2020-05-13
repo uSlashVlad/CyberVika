@@ -1,9 +1,12 @@
+const startTime = new Date();
+
 const Telegraf = require('telegraf');
 const advancedAPI = require('./src/dogcat-api');
 const randAPI = require('./src/rand-api');
 const random = require('./src/random');
 const axios = require('axios');
 const querystring = require('querystring');
+const fs = require('fs');
 require('colors');
 
 require('dotenv').config();
@@ -33,6 +36,8 @@ const ansVariants = [
 ];
 
 const pixApiUrl = 'https://pixabay.com/api/';
+
+const changelog = fs.readFileSync('./data/changelog.txt', 'utf-8');
 
 
 bot.use((ctx, next) => {
@@ -136,6 +141,35 @@ bot.command('f', ctx => {
     })
 });
 
+// Handling /donations command
+bot.command('donations', ctx => {
+    const data = JSON.parse(fs.readFileSync('./data/donations.json'));
+    let message = '<u><b>ПОЧЁТНЫЕ ДОНЕРЫ</b></u>\n\n';
+    for (let i = 0; i < data.length; i++) {
+        if (i < 3) {
+            message += `${i+1}) <b>${data[i].donator}\n[ ${data[i].sum}руб. ]</b>\n`;
+        } else {
+            message += `${i+1}) ${data[i].donator}\n[ ${data[i].sum}руб. ]\n`;
+        }
+    }
+    message += '\nесли кого-то забыл, то пишите на контакты в /gay';
+    ctx.reply(message, {
+        parse_mode: "html",
+        reply_markup: {
+            inline_keyboard: [
+                [
+                    { text: 'Мой Qiwi', url: 'https://qiwi.com/n/VLADN' },
+                    { text: 'DonationAlerts', url: 'https://www.donationalerts.com/r/uslashvlad' }
+                ]
+            ]
+        }
+    });
+});
+
+bot.command('changelog', ctx => {
+    ctx.reply(changelog);
+});
+
 // Handling Advanced API commands
 bot.command('adv_cat', ctx => {
     sendFileFromAdvancedApi(ctx, 0);
@@ -219,7 +253,9 @@ bot.action('help_commands', (ctx, next) => {
 -основные-
 /start - <i>"Hello World!"</i>
 /help - <i>помощь</i>
-/gay - <i>меню моего чсв</i>
+/gay - <i>о создателе</i>
+/donations - <i>список лучших людей на свете</i>
+/changelog - <i>список обновлений</i>
 /echo <code>[текст]</code> - <i>бот выведет текст</i>
 /luck - <i>рандомно даст/не даст по жопе</i>
 
@@ -266,7 +302,10 @@ bot.action('help_about', (ctx, next) => {
 <a href="https://api.thecatapi.com/">АПИ с котиками</a>
 <a href="https://api.thedogapi.com/">АПИ с пёсиками</a>
 <a href="https://pixabay.com/service/about/api/">Pixabay API</a>
-<b>Серверное время: ${date.getHours()} : ${date.getMinutes()} : ${date.getSeconds()}</b>`;
+<b>Серверное время: ${date.getHours()} : ${date.getMinutes()} : ${date.getSeconds()}</b>
+<b>Время с момента запуска: ${Math.floor((new Date() - startTime) / 1000)}с</b>
+
+О создателе: /gay`;
 
     ctx.editMessageText(message, { parse_mode: "html" }).then(() => {
         ctx.answerCbQuery().then(next());
